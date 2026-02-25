@@ -25,10 +25,24 @@ class User(AbstractUser):
             )
         ]
 
+    def __str__(self):
+        return self.username
+
 
 class Categories(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Genres(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Titles(models.Model):
@@ -36,14 +50,18 @@ class Titles(models.Model):
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
         Categories,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='category_title'
     )
+    genre = models.ForeignKey(
+        Genres,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        related_name='genre_title'
+    )
 
-
-class Genres(models.Model):
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
+    def __str__(self):
+        return self.name
 
 
 class Reviews(models.Model):
@@ -61,6 +79,9 @@ class Reviews(models.Model):
     score = models.PositiveSmallIntegerField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
+    def __str__(self):
+        return self.text
+
 
 class Comments(models.Model):
     review_id = models.ForeignKey(
@@ -75,3 +96,6 @@ class Comments(models.Model):
         related_name='author_comment'
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+
+    def __str__(self):
+        return self.text
