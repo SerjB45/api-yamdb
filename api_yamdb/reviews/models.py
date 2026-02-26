@@ -3,34 +3,54 @@ from django.db import models
 
 
 class User(AbstractUser):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+
     USERS_ROLE = (
-        ('user', 'User'),
-        ('moderator', 'Moderator'),
-        ('admin', 'Admin'),
+        (USER, 'User'),
+        (MODERATOR, 'Moderator'),
+        (ADMIN, 'Admin'),
     )
 
+    email = models.EmailField(
+        max_length=254,
+        unique=True,
+        verbose_name='Email адрес',
+    )
     role = models.CharField(
         max_length=10,
         choices=USERS_ROLE,
-        default='user',
+        default=USER,
         verbose_name='Роль',
     )
-
     bio = models.TextField(blank=True, verbose_name='Биография',)
 
     class Meta:
+        ordering = ('id',)
         constraints = [
             models.UniqueConstraint(
                 fields=('username', 'email'),
                 name='unique_user'
             )
         ]
-
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_admin(self):
+        return (
+            self.role == self.ADMIN
+            or self.is_superuser
+            or self.is_staff
+        )
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
 
 
 class Categories(models.Model):
