@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+TEXT_CHARACTER_LIMIT = 10
+
 
 class User(AbstractUser):
     USER = 'user'
@@ -58,7 +60,7 @@ class Category(models.Model):
     slug = models.SlugField(unique=True, verbose_name='Идентификатор',)
 
     def __str__(self):
-        return self.name
+        return self.name[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Категория'
@@ -70,7 +72,7 @@ class Genre(models.Model):
     slug = models.SlugField(unique=True, verbose_name='Идентификатор',)
 
     def __str__(self):
-        return self.name
+        return self.name[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Жанр'
@@ -95,7 +97,7 @@ class Title(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.name[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Название'
@@ -121,7 +123,7 @@ class Review(models.Model):
         auto_now_add=True, verbose_name='Дата публикации',)
 
     def __str__(self):
-        return self.text
+        return self.text[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Обзор'
@@ -148,7 +150,7 @@ class Comments(models.Model):
     )
 
     def __str__(self):
-        return self.text
+        return self.text[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Комментарий'

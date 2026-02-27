@@ -11,12 +11,20 @@ class UserAdmin(admin.ModelAdmin):
         'role',
     )
 
+    search_fields = (
+        'username',
+        'email',
+    )
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'slug',
+    )
+    search_fields = (
+        'name',
     )
 
 
@@ -27,6 +35,9 @@ class TitleAdmin(admin.ModelAdmin):
         'year',
         'category',
     )
+    search_fields = (
+        'name',
+    )
 
 
 @admin.register(Genre)
@@ -35,21 +46,31 @@ class GenreAdmin(admin.ModelAdmin):
         'name',
         'slug',
     )
+    search_fields = (
+        'name',
+    )
 
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = (
-        'title_id',
+        'title',
+        'text',
         'author',
         'pub_date',
     )
+    list_display_links = ('text',)
 
 
 @admin.register(Comments)
 class CommentsAdmin(admin.ModelAdmin):
     list_display = (
-        'review_id',
+        'review',
+        'text',
         'author',
         'pub_date',
+    )
+    list_display_links = ('text',)
+    search_fields = (
+        'text',
     )
