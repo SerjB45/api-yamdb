@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Categories, Comments, Genres, Reviews, Titles, User
+from .models import Category, Comments, Genre, Review, Title, User
 
 
 @admin.register(User)
@@ -11,45 +11,66 @@ class UserAdmin(admin.ModelAdmin):
         'role',
     )
 
+    search_fields = (
+        'username',
+        'email',
+    )
 
-@admin.register(Categories)
-class CategoriesAdmin(admin.ModelAdmin):
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'slug',
     )
+    search_fields = (
+        'name',
+    )
 
 
-@admin.register(Titles)
-class TitlesAdmin(admin.ModelAdmin):
+@admin.register(Title)
+class TitleAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'year',
         'category',
     )
+    search_fields = (
+        'name',
+    )
 
 
-@admin.register(Genres)
-class GenresAdmin(admin.ModelAdmin):
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'slug',
     )
+    search_fields = (
+        'name',
+    )
 
 
-@admin.register(Reviews)
-class ReviewsAdmin(admin.ModelAdmin):
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
     list_display = (
-        'title_id',
+        'title',
+        'text',
         'author',
         'pub_date',
     )
+    list_display_links = ('text',)
 
 
 @admin.register(Comments)
 class CommentsAdmin(admin.ModelAdmin):
     list_display = (
-        'review_id',
+        'review',
+        'text',
         'author',
         'pub_date',
+    )
+    list_display_links = ('text',)
+    search_fields = (
+        'text',
     )

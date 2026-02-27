@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+TEXT_CHARACTER_LIMIT = 10
+
 
 class User(AbstractUser):
     USER = 'user'
@@ -53,41 +55,41 @@ class User(AbstractUser):
         return self.role == self.MODERATOR
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=255, verbose_name='Категория',)
     slug = models.SlugField(unique=True, verbose_name='Идентификатор',)
 
     def __str__(self):
-        return self.name
+        return self.name[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(max_length=255, verbose_name='Жанр',)
     slug = models.SlugField(unique=True, verbose_name='Идентификатор',)
 
     def __str__(self):
-        return self.name
+        return self.name[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=255, verbose_name='Наименование',)
     year = models.PositiveSmallIntegerField(verbose_name='Год',)
     category = models.ForeignKey(
-        Categories,
+        Category,
         on_delete=models.DO_NOTHING,
         related_name='category_title',
         verbose_name='Категория',
     )
     genre = models.ForeignKey(
-        Genres,
+        Genre,
         on_delete=models.DO_NOTHING,
         blank=True,
         related_name='genre_title',
@@ -95,19 +97,19 @@ class Titles(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.name[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Название'
         verbose_name_plural = 'Названия'
 
 
-class Reviews(models.Model):
-    title_id = models.ForeignKey(
-        Titles,
+class Review(models.Model):
+    title = models.ForeignKey(
+        Title,
         on_delete=models.CASCADE,
         related_name='title',
-        verbose_name='ID произведения',
+        verbose_name='Произведение',
     )
     text = models.TextField(verbose_name='Обзор',)
     author = models.ForeignKey(
@@ -121,7 +123,7 @@ class Reviews(models.Model):
         auto_now_add=True, verbose_name='Дата публикации',)
 
     def __str__(self):
-        return self.text
+        return self.text[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Обзор'
@@ -129,11 +131,11 @@ class Reviews(models.Model):
 
 
 class Comments(models.Model):
-    review_id = models.ForeignKey(
-        Reviews,
+    review = models.ForeignKey(
+        Review,
         on_delete=models.CASCADE,
         related_name='rev_comment',
-        verbose_name='ID обзора',
+        verbose_name='Обзор',
     )
     text = models.TextField(verbose_name='Комментарий',)
     author = models.ForeignKey(
@@ -148,7 +150,7 @@ class Comments(models.Model):
     )
 
     def __str__(self):
-        return self.text
+        return self.text[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
         verbose_name = 'Комментарий'
