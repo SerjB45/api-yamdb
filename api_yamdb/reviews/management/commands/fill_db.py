@@ -72,17 +72,26 @@ class Command(BaseCommand):
         mapping = {}
         with open('static/data/genre_title.csv', encoding='utf-8') as file:
             for row in DictReader(file):
-                mapping[row['title_id']] = row['genre_id']
+                title_id = row['title_id']
+                genre_id = row['genre_id']
+                if title_id not in mapping:
+                    mapping[title_id] = []
+                mapping[title_id].append(genre_id)
 
         with open('static/data/titles.csv', encoding='utf-8') as file:
             for row in DictReader(file):
-                Title.objects.create(
+                title = Title.objects.create(
                     id=row['id'],
                     name=row['name'],
                     year=row['year'],
                     category=Category.objects.get(id=row['category']),
-                    genre=Genre.objects.get(id=mapping.get(row['id'], None))
                 )
+                genres_add = mapping.get(row['id'], [])
+
+                for genre_id in genres_add:
+                    genre_obj = Genre.objects.get(id=genre_id)
+                    title.genre.add(genre_obj)
+
         print('Произведения успешно загружены')
 
     def fill_reviews(self):

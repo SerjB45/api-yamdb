@@ -88,12 +88,16 @@ class Title(models.Model):
         related_name='category_title',
         verbose_name='Категория',
     )
-    genre = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genre,
-        on_delete=models.DO_NOTHING,
         blank=True,
         related_name='genre_title',
         verbose_name='Жанр',
+    )
+    description = models.TextField(
+        verbose_name='Описание',
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
