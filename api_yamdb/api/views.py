@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 from rest_framework import exceptions, filters, status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
@@ -124,7 +125,9 @@ class GenreViewSet(
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().order_by('name')
+    queryset = Title.objects.annotate(
+        rating=Avg('title__score')
+    ).all().order_by('name')
     serializer_class = TitleSerializer
 
     permission_classes = (IsAdminOrReadyOnly,)
