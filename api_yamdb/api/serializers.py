@@ -33,14 +33,14 @@ class SignupSerializer(serializers.Serializer):
         user_by_username = User.objects.filter(username=username).first()
         user_by_email = User.objects.filter(email=email).first()
 
+        errors = {}
         if user_by_username and user_by_username.email != email:
-            raise serializers.ValidationError(
-                {'username': ['Пользователь с таким username уже существует.']}
-            )
+            errors['username'] = ['Пользователь с таким username уже существует.']
         if user_by_email and user_by_email.username != username:
-            raise serializers.ValidationError(
-                {'email': ['Пользователь с таким email уже существует.']}
-            )
+            errors['email'] = ['Пользователь с таким email уже существует.']
+
+        if errors:
+            raise serializers.ValidationError(errors)
 
         return attrs
 
@@ -61,6 +61,7 @@ class TokenSerializer(serializers.Serializer):
     username = serializers.RegexField(
         regex=USERNAME_REGEX,
         max_length=150,
+        validators=[validate_username_not_me],
     )
     confirmation_code = serializers.CharField()
 
