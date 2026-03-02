@@ -1,20 +1,22 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, filters, status, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Genre, Title, User
+from reviews.models import Category, Comments, Genre, Review, Title, User
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from .pagination import UsersPagination
 from .permissions import (
     IsAdminOrReadyOnly,
     IsAdminRole,
-    IsAuthorModeratorAdminOrReadOnly,
+    IsAuthorOrReadOnly,
 )
 from .serializers import (
     CategorySerializer,
@@ -25,6 +27,8 @@ from .serializers import (
     TokenSerializer,
     UserMeSerializer,
     UserSerializer,
+    ReviewSerializer,
+    CommentSerializer
 )
 
 
@@ -92,9 +96,7 @@ class UserMeAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(
-    viewsets.ModelViewSet
-):
+class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
     http_method_names = ('get', 'post', 'delete',)
@@ -108,12 +110,9 @@ class CategoryViewSet(
         raise exceptions.MethodNotAllowed("GET")
 
 
-class GenreViewSet(
-    viewsets.ModelViewSet
-):
+class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
-
     http_method_names = ('get', 'post', 'delete',)
     permission_classes = (IsAdminOrReadyOnly,)
     pagination_class = PageNumberPagination
@@ -130,12 +129,10 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('title__score')
     ).all().order_by('name')
     serializer_class = TitleSerializer
-
     permission_classes = (IsAdminOrReadyOnly,)
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'genre__slug', 'category__slug', 'year')
-
     http_method_names = ('get', 'post', 'delete', 'patch',)
 
     def get_queryset(self):
@@ -158,3 +155,46 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method in SAFE_METHODS:
             return TitleReadSerializer
         return TitleSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorOrReadOnly]
+    pagination_class = UsersPagination
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        get_object_or_404(Title, pk=title_id)
+        return Review.objects.filter(title_id=title_id)
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+
+        if Review.objects.filter(
+            author=self.request.user,
+            title=title
+        ).exists():
+            raise PermissionDenied('Вы уже оставили отзыв на это произведение')
+
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthorOrReadOnly]
+    pagination_class = UsersPagination
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        title_id = self.kwargs.get('title_id')
+
+        get_object_or_404(Title, pk=title_id)
+        get_object_or_404(Review, pk=review_id, title_id=title_id)
+
+        return Comments.objects.filter(review_id=review_id).all()
+
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, pk=review_id)
+        serializer.save(author=self.request.user, review=review)
