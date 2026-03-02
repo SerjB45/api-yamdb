@@ -126,7 +126,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
-        rating=Avg('reviews__score')
+        rating=Avg('title__score')
     ).all().order_by('name')
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadyOnly,)
