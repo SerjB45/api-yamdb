@@ -22,7 +22,7 @@ class IsAdminOrReadOnly(BasePermission):
         )
 
 
-class IsAuthorOrReadOnly(BasePermission):
+class IsAuthorOrModeratorOrAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         if request.method == 'POST':
             return request.user.is_authenticated
@@ -32,4 +32,8 @@ class IsAuthorOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        return obj.author == request.user
+        return (
+            obj.author == request.user
+            or request.user.is_moderator
+            or request.user.is_admin
+        )
