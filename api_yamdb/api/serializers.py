@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from rest_framework.validators import UniqueValidator
 
 from api.validators import validate_username_not_me
 from reviews.models import (
@@ -174,14 +174,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             'score',
             'pub_date'
         )
-        read_only_fields = ('id', 'pub_date')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('title', 'author'),
-                message='Вы уже оставили отзыв на это произведение.'
-            )
-        ]
+        read_only_fields = ('id', 'author', 'pub_date')
 
     def validate_score(self, value):
         if value < 1 or value > 10:
@@ -205,4 +198,4 @@ class CommentSerializer(serializers.ModelSerializer):
             'author',
             'pub_date'
         )
-        read_only_fields = ('id', 'pub_date')
+        read_only_fields = ('id', 'author', 'pub_date')
