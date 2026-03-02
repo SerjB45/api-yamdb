@@ -2,11 +2,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 
 from reviews.models import (
     Category,
+    Comments,
     Genre,
+    Review,
     Title
 )
 
@@ -35,7 +37,9 @@ class SignupSerializer(serializers.Serializer):
 
         errors = {}
         if user_by_username and user_by_username.email != email:
-            errors['username'] = ['Пользователь с таким username уже существует.']
+            errors['username'] = (
+                ['Пользователь с таким username уже существует.']
+            )
         if user_by_email and user_by_email.username != username:
             errors['email'] = ['Пользователь с таким email уже существует.']
 
@@ -159,3 +163,54 @@ class TitleReadSerializer(serializers.ModelSerializer):
         model = Title
         fields = ('id', 'name', 'year', 'rating', 'description',
                   'genre', 'category')
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Review
+        fields = (
+            'id',
+            'text',
+            'author',
+            'score',
+            'pub_date'
+        )
+        read_only_fields = ('id', 'pub_date')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('title', 'author'),
+                message='Вы уже оставили отзыв на это произведение.'
+            )
+        ]
+
+    def validate_score(self, value):
+        if value < 1 or value > 10:
+            raise serializers.ValidationError(
+                'Оценка должна быть целым числом от 1 до 10.'
+            )
+        return value
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Comments
+        fields = (
+            'id',
+            'text',
+            'author',
+            'pub_date'
+        )
+        read_only_fields = ('id', 'pub_date')
