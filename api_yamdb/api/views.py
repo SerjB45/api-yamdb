@@ -14,7 +14,7 @@ from reviews.models import Category, Comments, Genre, Review, Title, User
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from .pagination import UsersPagination
 from .permissions import (
-    IsAdminOrReadyOnly,
+    IsAdminOrReadOnly,
     IsAdminRole,
     IsAuthorOrReadOnly,
 )
@@ -100,7 +100,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
     http_method_names = ('get', 'post', 'delete',)
-    permission_classes = (IsAdminOrReadyOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
@@ -114,7 +114,7 @@ class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
     http_method_names = ('get', 'post', 'delete',)
-    permission_classes = (IsAdminOrReadyOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
@@ -129,7 +129,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('title__score')
     ).all().order_by('name')
     serializer_class = TitleSerializer
-    permission_classes = (IsAdminOrReadyOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'genre__slug', 'category__slug', 'year')
