@@ -9,7 +9,11 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Title, User
 from .pagination import UsersPagination
-from .permissions import IsAdminOrReadyOnly, IsAdminRole
+from .permissions import (
+    IsAdminOrReadyOnly,
+    IsAdminRole,
+    IsAuthorModeratorAdminOrReadOnly,
+)
 from .serializers import (
     CategorySerializer,
     GenreSerializer,
@@ -45,7 +49,7 @@ class SignupAPIView(APIView):
         send_mail(
             subject='Код подтверждения YaMDb',
             message=f'Ваш код подтверждения: {confirmation_code}',
-            from_email=None,
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
         )
 
