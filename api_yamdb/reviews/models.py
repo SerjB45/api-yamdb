@@ -56,7 +56,7 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Категория',)
+    name = models.CharField(max_length=256, verbose_name='Категория',)
     slug = models.SlugField(unique=True, verbose_name='Идентификатор',)
 
     def __str__(self):
@@ -68,7 +68,7 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Жанр',)
+    name = models.CharField(max_length=256, verbose_name='Жанр',)
     slug = models.SlugField(unique=True, verbose_name='Идентификатор',)
 
     def __str__(self):
@@ -80,7 +80,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Наименование',)
+    name = models.CharField(max_length=256, verbose_name='Наименование',)
     year = models.PositiveSmallIntegerField(verbose_name='Год',)
     category = models.ForeignKey(
         Category,
@@ -130,6 +130,12 @@ class Review(models.Model):
         return self.text[:TEXT_CHARACTER_LIMIT]
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author'),
+                name='unique_review_title_author',
+            ),
+        ]
         verbose_name = 'Обзор'
         verbose_name_plural = 'Обзоры'
 

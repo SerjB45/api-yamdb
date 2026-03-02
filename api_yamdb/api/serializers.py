@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 from rest_framework.validators import UniqueValidator
@@ -141,6 +142,13 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = ('id', 'name', 'year', 'description',
                   'genre', 'category')
+
+    def validate_year(self, value):
+        if value > timezone.now().year:
+            raise serializers.ValidationError(
+                'Год выпуска не может быть больше текущего.'
+            )
+        return value
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
