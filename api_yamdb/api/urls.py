@@ -17,7 +17,6 @@ list_create = {
     'get': 'list',
     'post': 'create'
 }
-
 detail_actions = {
     'get': 'retrieve',
     'patch': 'partial_update',

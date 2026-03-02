@@ -2,8 +2,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
-from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
+from api.validators import validate_username_not_me
 from reviews.models import (
     Category,
     Comments,
@@ -11,9 +12,6 @@ from reviews.models import (
     Review,
     Title
 )
-
-from .validators import validate_username_not_me
-
 
 User = get_user_model()
 
@@ -35,16 +33,14 @@ class SignupSerializer(serializers.Serializer):
         user_by_username = User.objects.filter(username=username).first()
         user_by_email = User.objects.filter(email=email).first()
 
-        errors = {}
         if user_by_username and user_by_username.email != email:
-            errors['username'] = (
-                ['Пользователь с таким username уже существует.']
+            raise serializers.ValidationError(
+                {'username': ['Пользователь с таким username уже существует.']}
             )
         if user_by_email and user_by_email.username != username:
-            errors['email'] = ['Пользователь с таким email уже существует.']
-
-        if errors:
-            raise serializers.ValidationError(errors)
+            raise serializers.ValidationError(
+                {'email': ['Пользователь с таким email уже существует.']}
+            )
 
         return attrs
 
@@ -65,7 +61,6 @@ class TokenSerializer(serializers.Serializer):
     username = serializers.RegexField(
         regex=USERNAME_REGEX,
         max_length=150,
-        validators=[validate_username_not_me],
     )
     confirmation_code = serializers.CharField()
 
@@ -120,7 +115,6 @@ class UserMeSerializer(UserSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
         fields = ('name', 'slug',)
@@ -169,7 +163,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
-        default=serializers.CurrentUserDefault()
     )
 
     class Meta:
@@ -202,7 +195,6 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
-        default=serializers.CurrentUserDefault()
     )
 
     class Meta:
