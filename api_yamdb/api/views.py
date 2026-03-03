@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import exceptions, filters, status, viewsets
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -140,6 +139,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthorOrModeratorOrAdminOrReadOnly]
     pagination_class = UsersPagination
+    http_method_names = ('get', 'post', 'delete', 'patch',)
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
@@ -148,13 +148,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
-
-        if Review.objects.filter(
-            author=self.request.user,
-            title=title
-        ).exists():
-            raise ValidationError('Вы уже оставили отзыв на это произведение')
-
         serializer.save(author=self.request.user, title=title)
 
 
@@ -162,6 +155,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthorOrModeratorOrAdminOrReadOnly]
     pagination_class = UsersPagination
+    http_method_names = ('get', 'post', 'delete', 'patch',)
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')

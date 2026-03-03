@@ -181,9 +181,20 @@ class ReviewSerializer(serializers.ModelSerializer):
             'text',
             'author',
             'score',
-            'pub_date'
+            'pub_date',
         )
         read_only_fields = ('id', 'author', 'pub_date')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if request.method == 'POST':
+            title = self.context['view'].kwargs.get('title_id')
+            author = self.context['request'].user
+            if Review.objects.filter(title=title, author=author).exists():
+                raise serializers.ValidationError(
+                    'Вы уже оставили отзыв на это произведение.'
+                )
+        return data
 
     def validate_score(self, value):
         if value < MIN_SCORE or value > MAX_SCORE:
