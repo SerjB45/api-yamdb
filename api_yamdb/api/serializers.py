@@ -6,9 +6,10 @@ from rest_framework.exceptions import NotFound
 from rest_framework.validators import UniqueValidator
 
 from api.validators import validate_username_not_me
+from reviews.core import MAX_SCORE, MIN_SCORE
 from reviews.models import (
     Category,
-    Comments,
+    Comment,
     Genre,
     Review,
     Title
@@ -17,8 +18,6 @@ from reviews.models import (
 User = get_user_model()
 
 USERNAME_REGEX = r'^[\w.@+-]+\Z'
-MAX_SCORE = 10
-MIN_SCORE = 1
 
 
 class SignupSerializer(serializers.Serializer):
@@ -201,7 +200,7 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Comments
+        model = Comment
         fields = (
             'id',
             'text',

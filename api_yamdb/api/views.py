@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
-from reviews.models import Category, Comments, Genre, Review, Title, User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 from .filters import TitleFilter
 from .mixins import CommonSettingMixin, GenreCategoryMixin
 from .pagination import UsersPagination
@@ -121,7 +121,7 @@ class GenreViewSet(
 
 class TitleViewSet(CommonSettingMixin, viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
-        rating=Avg('title__score')
+        rating=Avg('reviews__score')
     ).all().order_by('name')
     serializer_class = TitleSerializer
     search_fields = ('name', 'genre__slug', 'category__slug', 'year')
@@ -166,7 +166,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
 
-        return Comments.objects.filter(review_id=review_id).order_by(
+        return Comment.objects.filter(review_id=review_id).order_by(
             'pub_date'
         )
 
