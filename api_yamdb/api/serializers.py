@@ -17,6 +17,8 @@ from reviews.models import (
 User = get_user_model()
 
 USERNAME_REGEX = r'^[\w.@+-]+\Z'
+MAX_SCORE = 10
+MIN_SCORE = 1
 
 
 class SignupSerializer(serializers.Serializer):
@@ -185,7 +187,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'author', 'pub_date')
 
     def validate_score(self, value):
-        if value < 1 or value > 10:
+        if value < MIN_SCORE or value > MAX_SCORE:
             raise serializers.ValidationError(
                 'Оценка должна быть целым числом от 1 до 10.'
             )
