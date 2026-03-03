@@ -3,6 +3,17 @@ from django.db import models
 
 MAX_SCORE = 10
 MIN_SCORE = 1
+TEXT_CHARACTER_LIMIT = 10
+
+ADMIN = 'admin'
+MODERATOR = 'moderator'
+USER = 'user'
+
+USERS_ROLE = (
+    (USER, 'User'),
+    (MODERATOR, 'Moderator'),
+    (ADMIN, 'Admin'),
+)
 
 
 class CommonSlugModel(models.Model):

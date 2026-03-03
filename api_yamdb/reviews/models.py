@@ -3,26 +3,19 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .core import (
+    ADMIN,
     CommonPublicationModel,
     CommonSlugModel,
     MAX_SCORE,
     MIN_SCORE,
-
+    MODERATOR,
+    TEXT_CHARACTER_LIMIT,
+    USER,
+    USERS_ROLE,
 )
-
-TEXT_CHARACTER_LIMIT = 10
 
 
 class User(AbstractUser):
-    USER = 'user'
-    MODERATOR = 'moderator'
-    ADMIN = 'admin'
-
-    USERS_ROLE = (
-        (USER, 'User'),
-        (MODERATOR, 'Moderator'),
-        (ADMIN, 'Admin'),
-    )
 
     email = models.EmailField(
         max_length=254,
@@ -54,14 +47,14 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return (
-            self.role == self.ADMIN
+            self.role == ADMIN
             or self.is_superuser
             or self.is_staff
         )
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.role == MODERATOR
 
 
 class Category(CommonSlugModel):
