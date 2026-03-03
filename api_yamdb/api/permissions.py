@@ -5,20 +5,15 @@ class IsAdminRole(BasePermission):
     def has_permission(self, request, view):
         user = request.user
         return bool(
-            user
-            and user.is_authenticated
-            and user.is_admin
+            user.is_authenticated and user.is_admin
         )
 
 
-class IsAdminOrReadOnly(BasePermission):
+class IsAdminOrReadOnly(IsAdminRole):
     def has_permission(self, request, view):
         return (
             request.method in SAFE_METHODS
-            or (
-                request.user.is_authenticated
-                and request.user.is_admin
-            )
+            or super().has_permission(request, view)
         )
 
 
