@@ -9,7 +9,6 @@ from .views import (
     SignupAPIView,
     TokenAPIView,
     TitleViewSet,
-    UserMeAPIView,
     UserViewSet,
 )
 
@@ -30,6 +29,5 @@ router.register(
 urlpatterns = [
     path('v1/auth/signup/', SignupAPIView.as_view(), name='auth_signup'),
     path('v1/auth/token/', TokenAPIView.as_view(), name='auth_token'),
-    path('v1/users/me/', UserMeAPIView.as_view(), name='users_me'),
     path('v1/', include(router.urls)),
 ]
