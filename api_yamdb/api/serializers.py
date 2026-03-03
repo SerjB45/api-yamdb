@@ -6,9 +6,10 @@ from rest_framework.exceptions import NotFound
 from rest_framework.validators import UniqueValidator
 
 from api.validators import validate_username_not_me
+from reviews.core import MAX_SCORE, MIN_SCORE
 from reviews.models import (
     Category,
-    Comments,
+    Comment,
     Genre,
     Review,
     Title
@@ -118,13 +119,13 @@ class UserMeSerializer(UserSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('name', 'slug',)
+        exclude = ('id',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ('name', 'slug',)
+        exclude = ('id',)
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -180,12 +181,23 @@ class ReviewSerializer(serializers.ModelSerializer):
             'text',
             'author',
             'score',
-            'pub_date'
+            'pub_date',
         )
         read_only_fields = ('id', 'author', 'pub_date')
 
+    def validate(self, data):
+        request = self.context.get('request')
+        if request.method == 'POST':
+            title = self.context['view'].kwargs.get('title_id')
+            author = self.context['request'].user
+            if Review.objects.filter(title=title, author=author).exists():
+                raise serializers.ValidationError(
+                    'Вы уже оставили отзыв на это произведение.'
+                )
+        return data
+
     def validate_score(self, value):
-        if value < 1 or value > 10:
+        if value < MIN_SCORE or value > MAX_SCORE:
             raise serializers.ValidationError(
                 'Оценка должна быть целым числом от 1 до 10.'
             )
@@ -199,7 +211,7 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Comments
+        model = Comment
         fields = (
             'id',
             'text',
