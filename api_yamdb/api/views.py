@@ -3,8 +3,7 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import exceptions, filters, status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -103,19 +102,12 @@ class CategoryViewSet(
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        raise exceptions.MethodNotAllowed("GET")
-
 
 class GenreViewSet(
     CommonSettingMixin, GenreCategoryMixin, viewsets.ModelViewSet
 ):
     queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
-    http_method_names = ('get', 'post', 'delete',)
-
-    def retrieve(self, request, *args, **kwargs):
-        raise exceptions.MethodNotAllowed("GET")
 
 
 class TitleViewSet(CommonSettingMixin, viewsets.ModelViewSet):
