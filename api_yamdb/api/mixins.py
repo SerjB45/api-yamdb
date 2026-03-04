@@ -1,5 +1,6 @@
+from rest_framework import exceptions, filters
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import filters
+
 from .permissions import IsAdminOrReadOnly
 
 
@@ -13,3 +14,6 @@ class GenreCategoryMixin:
     http_method_names = ('get', 'post', 'delete',)
     search_fields = ('name',)
     lookup_field = 'slug'
+
+    def retrieve(self, request, *args, **kwargs):
+        raise exceptions.MethodNotAllowed("GET")
